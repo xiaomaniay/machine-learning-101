@@ -5,7 +5,7 @@ from sklearn import svm
 from sklearn.metrics import accuracy_score
 
 
-import cPickle
+import _pickle as cPickle
 import gzip
 
 def load(file_name):
@@ -44,7 +44,6 @@ def make_Dictionary(root_dir):
     return dictionary
 
 
-
 def extract_features(mail_dir):
     files = [os.path.join(mail_dir,fi) for fi in os.listdir(mail_dir)]
     features_matrix = np.zeros((len(files),3000))
@@ -52,17 +51,18 @@ def extract_features(mail_dir):
     count = 0;
     docID = 0;
     for fil in files:
-      with open(fil) as fi:
-        for i,line in enumerate(fi):
-          if i == 2:
-            words = line.split()
-            for word in words:
-              wordID = 0
-              for i,d in enumerate(dictionary):
-                if d[0] == word:
-                  wordID = i
-                  features_matrix[docID,wordID] = words.count(word)
-        train_labels[docID] = 0;
+        with open(fil) as fi:
+            for i,line in enumerate(fi):
+                if i == 2:
+                    words = line.split()
+                    for word in words:
+                        wordID = 0
+                        for i,d in enumerate(dictionary):
+                            if d[0] == word:
+                                wordID = i
+                                features_matrix[docID,wordID] = words.count(word)
+                                break
+            train_labels[docID] = 0;
         filepathTokens = fil.split('/')
         lastToken = filepathTokens[len(filepathTokens) - 1]
         if lastToken.startswith("spmsg"):
@@ -72,13 +72,12 @@ def extract_features(mail_dir):
     return features_matrix, train_labels
 
 
-
 TRAIN_DIR = "../train-mails"
 TEST_DIR = "../test-mails"
 
 dictionary = make_Dictionary(TRAIN_DIR)
 
-print "reading and processing emails from file."
+print("reading and processing emails from file.")
 
 features_matrix, labels = extract_features(TRAIN_DIR)
 test_feature_matrix, test_labels = extract_features(TEST_DIR)
@@ -89,11 +88,11 @@ test_feature_matrix, test_labels = extract_features(TEST_DIR)
 
 model = svm.SVC(kernel="rbf", C=100, gamma=0.001)
 
-print "Training model."
+print("Training model.")
 #train model
 model.fit(features_matrix, labels)
 
 predicted_labels = model.predict(test_feature_matrix)
 
-print "FINISHED classifying. accuracy score : "
-print accuracy_score(test_labels, predicted_labels)
+print("FINISHED classifying. accuracy score : ")
+print(accuracy_score(test_labels, predicted_labels))

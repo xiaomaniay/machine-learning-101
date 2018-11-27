@@ -14,7 +14,7 @@ def make_Dictionary(root_dir):
                 words = line.split()
                 all_words += words
     dictionary = Counter(all_words)
-    list_to_remove = dictionary.keys()
+    list_to_remove = list(dictionary)
 
     for item in list_to_remove:
         if item.isalpha() == False:
@@ -44,8 +44,9 @@ def extract_features(mail_dir):
                 if d[0] == word:
                   wordID = i
                   features_matrix[docID,wordID] = words.count(word)
+                  break
         train_labels[docID] = 0;
-        filepathTokens = fil.split('/')
+        filepathTokens = os.path.split(fil)
         lastToken = filepathTokens[len(filepathTokens) - 1]
         if lastToken.startswith("spmsg"):
             train_labels[docID] = 1;
@@ -60,18 +61,18 @@ TEST_DIR = "../test-mails"
 
 dictionary = make_Dictionary(TRAIN_DIR)
 
-print "reading and processing emails from file."
+print("reading and processing emails from file.")
 features_matrix, labels = extract_features(TRAIN_DIR)
 test_feature_matrix, test_labels = extract_features(TEST_DIR)
 
 
 model = GaussianNB()
 
-print "Training model."
+print("Training model.")
 #train model
 model.fit(features_matrix, labels)
 
 predicted_labels = model.predict(test_feature_matrix)
 
-print "FINISHED classifying. accuracy score : "
-print accuracy_score(test_labels, predicted_labels)
+print("FINISHED classifying. accuracy score : ")
+print(accuracy_score(test_labels, predicted_labels))
